@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# generated web assets for the mobile wrapper
+www/
+
+# Capacitor / Android build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/public/
+android/app/src/main/res/xml/config.xml
+.capacitor/
+
+# artifacts & secrets
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# editor/os
+.DS_Store
+Thumbs.db

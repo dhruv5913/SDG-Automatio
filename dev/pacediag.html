@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DIAG:pending</title>
+<link rel="stylesheet" href="../css/style.css">
+<script>
+  window.__errs = [];
+  window.addEventListener('error', function (e) {
+    window.__errs.push(e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno);
+  });
+</script>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand"><span class="logo">◑</span><div class="brand-title">SDG Automation</div></div>
+    <nav id="stageTabs"></nav>
+    <div class="controls">
+      <span id="badgeCleared" class="badge hidden">✓ cleared</span>
+      <button id="btnHelp" class="btn ghost">Help</button>
+      <button id="btnTemplate" class="btn ghost">Template</button>
+      <button id="btnSpeed" class="btn">1×</button>
+      <button id="btnReset" class="btn ghost">⟲</button>
+      <button id="btnStep" class="btn">⏭ Step</button>
+      <button id="btnStop" class="btn" disabled>⏹ Stop</button>
+      <button id="btnPause" class="btn" disabled>⏸</button>
+      <button id="btnRun" class="btn primary">▶ Run</button>
+      <button id="btnReport" class="btn accent" disabled>Report</button>
+      <button id="btnFinal" class="btn accent hidden">Final</button>
+    </div>
+  </header>
+  <main id="main">
+    <section id="worldPane">
+      <div id="stageInfo">
+        <div id="stageTitle" class="stage-title">Stage</div>
+        <div id="stageSubtitle" class="stage-sub"></div>
+      </div>
+      <canvas id="world"></canvas>
+      <div id="resourceBar"></div>
+    </section>
+    <section id="editorPane">
+      <div class="pane-title">Goals <span id="goalTick" class="hint">end of run</span></div>
+      <div id="goalList"></div>
+      <div class="pane-title">Your code <span class="hint">Ctrl+Enter to run</span></div>
+      <div id="editorWrap">
+        <pre id="lineNumbers" aria-hidden="true"></pre>
+        <pre id="highlight" aria-hidden="true"><code></code></pre>
+        <textarea id="code" spellcheck="false" autocomplete="off"></textarea>
+      </div>
+      <div class="pane-title">Output</div>
+      <pre id="consoleOut" class="console"></pre>
+    </section>
+  </main>
+  <footer id="statusbar">
+    <span class="state" id="runState">Ready</span>
+    <span class="stat">tick <b id="statTick">0 / 0</b></span>
+    <span class="stat" id="statSpeed">1× speed</span>
+    <span class="stat last" id="lastAction">–</span>
+    <span class="spacer"></span>
+    <span class="hint">pace diag</span>
+  </footer>
+</div>
+<div id="reportModal" class="modal hidden"><div class="modal-box report-box"><div id="reportBody"></div>
+  <div class="modal-actions"><button id="reportClose" class="btn ghost">Close</button><button id="reportCloseBtn" class="btn primary">Keep improving</button></div></div></div>
+<div id="finalModal" class="modal hidden"><div class="modal-box report-box"><div id="finalBody"></div>
+  <div class="modal-actions"><button id="finalDownload" class="btn ghost">Download .txt</button><button id="finalClose" class="btn primary">Done</button></div></div></div>
+<div id="helpModal" class="modal hidden"><div class="modal-box help-box"><h2>How to play</h2><div id="helpApi"></div>
+  <div class="modal-actions"><button id="helpClose" class="btn primary">Got it</button></div></div></div>
+
+<script src="../js/dsl/tokenizer.js"></script>
+<script src="../js/dsl/parser.js"></script>
+<script src="../js/dsl/interpreter.js"></script>
+<script src="../js/core/metrics.js"></script>
+<script src="../js/core/goals.js"></script>
+<script src="../js/core/tradeoffs.js"></script>
+<script src="../js/core/engine.js"></script>
+<script src="../js/stages/stage1_basic.js"></script>
+<script src="../js/stages/stage2_manufacturing.js"></script>
+<script src="../js/stages/stage3_environment.js"></script>
+<script src="../js/stages/stage4_lifestyle.js"></script>
+<script src="../js/reports/stage_report.js"></script>
+<script src="../js/reports/final_report.js"></script>
+<script src="../js/ui/highlight.js"></script>
+<script src="../js/ui/editor.js"></script>
+<script src="../js/ui/renderer.js"></script>
+<script src="../js/ui/hud.js"></script>
+<script src="../js/ui/app.js"></script>
+<script>
+window.addEventListener('load', function () {
+  var samples = [];
+  var t0 = performance.now();
+  SDG.debug.reset(true);
+  SDG.debug.start();
+  var iv = setInterval(function () {
+    var p = SDG.debug.pace();
+    samples.push(Math.round(performance.now() - t0) + ':f' + p.count + ',s' + p.seq + ',t' + p.tick + ',last' + p.last +
+      ',at' + Math.round(p.at - p.now) + ',' + SDG.debug.state());
+  }, 250);
+  setTimeout(function () {
+    clearInterval(iv);
+    var lines = Array.prototype.map.call(document.querySelectorAll('.console-line'), function (l) { return l.textContent; });
+    var p = SDG.debug.pace();
+    document.title = 'DIAG:' + samples.join(' | ') + ' ::vis=' + document.visibilityState +
+      ' ::f=' + p.count + ' ::errs=' + (window.__errs.join('; ') || 'none') +
+      ' ::CONSOLE::' + lines.join(' // ');
+  }, 2500);
+});
+</script>
+</body>
+</html>

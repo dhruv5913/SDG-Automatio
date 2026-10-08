@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PACE:pending</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo">◑</span>
+      <div class="brand-title">SDG Automation</div>
+    </div>
+    <nav id="stageTabs"></nav>
+    <div class="controls">
+      <span id="badgeCleared" class="badge hidden">✓ cleared</span>
+      <button id="btnHelp" class="btn ghost">Help</button>
+      <button id="btnTemplate" class="btn ghost">Template</button>
+      <button id="btnSpeed" class="btn">1×</button>
+      <button id="btnReset" class="btn ghost">⟲</button>
+      <button id="btnStep" class="btn">⏭ Step</button>
+      <button id="btnStop" class="btn" disabled>⏹ Stop</button>
+      <button id="btnPause" class="btn" disabled>⏸</button>
+      <button id="btnRun" class="btn primary">▶ Run</button>
+      <button id="btnReport" class="btn accent" disabled>Report</button>
+      <button id="btnFinal" class="btn accent hidden">Final</button>
+    </div>
+  </header>
+  <main id="main">
+    <section id="worldPane">
+      <div id="stageInfo">
+        <div id="stageTitle" class="stage-title">Stage</div>
+        <div id="stageSubtitle" class="stage-sub"></div>
+      </div>
+      <canvas id="world"></canvas>
+      <div id="resourceBar"></div>
+    </section>
+    <section id="editorPane">
+      <div class="pane-title">Goals <span id="goalTick" class="hint">end of run</span></div>
+      <div id="goalList"></div>
+      <div class="pane-title">Your code <span class="hint">Ctrl+Enter to run</span></div>
+      <div id="editorWrap">
+        <pre id="lineNumbers" aria-hidden="true"></pre>
+        <pre id="highlight" aria-hidden="true"><code></code></pre>
+        <textarea id="code" spellcheck="false" autocomplete="off"></textarea>
+      </div>
+      <div class="pane-title">Output</div>
+      <pre id="consoleOut" class="console"></pre>
+    </section>
+  </main>
+  <footer id="statusbar">
+    <span class="state" id="runState">Ready</span>
+    <span class="stat">tick <b id="statTick">0 / 0</b></span>
+    <span class="stat" id="statSpeed">1× speed</span>
+    <span class="stat last" id="lastAction">–</span>
+    <span class="spacer"></span>
+    <span class="hint">pace test</span>
+  </footer>
+</div>
+
+<div id="reportModal" class="modal hidden">
+  <div class="modal-box report-box">
+    <div id="reportBody"></div>
+    <div class="modal-actions">
+      <button id="reportClose" class="btn ghost">Close</button>
+      <button id="reportCloseBtn" class="btn primary">Keep improving</button>
+    </div>
+  </div>
+</div>
+<div id="finalModal" class="modal hidden">
+  <div class="modal-box report-box">
+    <div id="finalBody"></div>
+    <div class="modal-actions">
+      <button id="finalDownload" class="btn ghost">Download .txt</button>
+      <button id="finalClose" class="btn primary">Done</button>
+    </div>
+  </div>
+</div>
+<div id="helpModal" class="modal hidden">
+  <div class="modal-box help-box">
+    <h2>How to play</h2>
+    <div id="helpApi"></div>
+    <div class="modal-actions"><button id="helpClose" class="btn primary">Got it</button></div>
+  </div>
+</div>
+
+<script src="../js/dsl/tokenizer.js"></script>
+<script src="../js/dsl/parser.js"></script>
+<script src="../js/dsl/interpreter.js"></script>
+<script src="../js/core/metrics.js"></script>
+<script src="../js/core/goals.js"></script>
+<script src="../js/core/tradeoffs.js"></script>
+<script src="../js/core/engine.js"></script>
+<script src="../js/stages/stage1_basic.js"></script>
+<script src="../js/stages/stage2_manufacturing.js"></script>
+<script src="../js/stages/stage3_environment.js"></script>
+<script src="../js/stages/stage4_lifestyle.js"></script>
+<script src="../js/reports/stage_report.js"></script>
+<script src="../js/reports/final_report.js"></script>
+<script src="../js/ui/highlight.js"></script>
+<script src="../js/ui/editor.js"></script>
+<script src="../js/ui/renderer.js"></script>
+<script src="../js/ui/hud.js"></script>
+<script src="../js/ui/app.js"></script>
+<script>
+window.addEventListener('load', function () {
+  var out = [];
+  var bad = false;
+  function check(name, cond, detail) {
+    out.push((cond ? 'ok ' : 'BAD ') + name + (detail !== undefined ? '[' + detail + ']' : ''));
+    if (!cond) bad = true;
+  }
+  function key(el, opts) {
+    el.dispatchEvent(new KeyboardEvent('keydown', Object.assign({ bubbles: true, cancelable: true }, opts)));
+  }
+
+  var errors = [];
+  window.addEventListener('error', function (e) { errors.push(e.message); });
+
+  // headless/virtual-time starves rAF; drive frame() on a timer so pacing
+  // (which is performance.now()-based) is exercised for real
+  setInterval(function () { SDG.debug.frame(); }, 16);
+
+  // --- 1. pacing at 1x: one action every ~275ms ---
+  SDG.debug.reset(true);
+  var a0 = SDG.debug.actionSeq(), t0 = performance.now();
+  SDG.debug.start();
+  setTimeout(function () {
+    var elapsed1 = performance.now() - t0;
+    var acts1 = SDG.debug.actionSeq() - a0;
+    var exp1 = elapsed1 / 275;
+    check('pace 1x', acts1 >= Math.min(1, exp1 - 2.5) && acts1 <= exp1 + 3, acts1 + ' acts / ' + Math.round(elapsed1) + 'ms (exp ~' + exp1.toFixed(1) + ')');
+
+    // --- 2. pacing at 4x ---
+    SDG.debug.setSpeed(4);
+    var a1 = SDG.debug.actionSeq(), t1 = performance.now();
+    setTimeout(function () {
+      var elapsed2 = performance.now() - t1;
+      var acts2 = SDG.debug.actionSeq() - a1;
+      var exp2 = elapsed2 / 68.75;
+      check('pace 4x', acts2 >= Math.min(3, exp2 - 4) && acts2 <= exp2 + 6, acts2 + ' acts / ' + Math.round(elapsed2) + 'ms (exp ~' + exp2.toFixed(1) + ')');
+      SDG.debug.setSpeed(1);
+
+      // --- 3. Stop grades the run ---
+      SDG.debug.stop();
+      check('stop finishes run', SDG.debug.state() === 'finished', SDG.debug.state());
+      check('stop produced report', !!SDG.debug.report());
+
+      // --- 4. Step: exactly one action (one tick) per press ---
+      SDG.debug.reset(true);
+      SDG.debug.step();
+      var tickA = SDG.debug.world().tick, seqA = SDG.debug.actionSeq(), stA = SDG.debug.state();
+      check('step 1: one action', seqA === 1, 'seq=' + seqA);
+      check('step 1: one tick', tickA === 1, 'tick=' + tickA);
+      check('step 1: stays paused', stA === 'paused', stA);
+      SDG.debug.step();
+      check('step 2: second action', SDG.debug.actionSeq() === 2 && SDG.debug.world().tick === 2,
+        'seq=' + SDG.debug.actionSeq() + ' tick=' + SDG.debug.world().tick);
+
+      // --- 5. goal rows / bars / chips are live ---
+      var goals = document.querySelectorAll('.goal');
+      var fills = document.querySelectorAll('.goal-prog i');
+      var chips = document.querySelectorAll('.chip-val');
+      var barsOk = fills.length > 0 && Array.prototype.some.call(fills, function (f) { return f.style.width && f.style.width !== '0%'; });
+      var chipsOk = chips.length > 0 && Array.prototype.every.call(chips, function (c) { return c.textContent !== '–'; });
+      check('goal rows built', goals.length >= 4 && fills.length === goals.length, goals.length + '/' + fills.length);
+      check('goal progress bars moving', barsOk);
+      check('chip values rendered', chipsOk);
+      check('goal tick text', /tick \d+\/\d+/.test(document.getElementById('goalTick').textContent),
+        document.getElementById('goalTick').textContent);
+
+      // --- 6. editor: Tab inserts 4 spaces and keeps typing alive ---
+      var ta = document.getElementById('code');
+      ta.focus();
+      ta.setSelectionRange(0, 0);
+      key(ta, { key: 'Tab' });
+      check('editor Tab indents', ta.value.slice(0, 4) === '    ', JSON.stringify(ta.value.slice(0, 8)));
+      ta.setSelectionRange(0, 0);
+      key(ta, { key: 'Tab', shiftKey: true });
+      check('editor Shift+Tab outdents', ta.value.slice(0, 4) !== '    ', JSON.stringify(ta.value.slice(0, 8)));
+      ta.setSelectionRange(0, 0);
+      key(ta, { key: 's', ctrlKey: true });
+      check('Ctrl+S saves', Array.prototype.some.call(document.querySelectorAll('.console-line'), function (l) { return /saved/.test(l.textContent); }));
+
+      // --- 7. syntax error highlights its line ---
+      ta.value = 'def broken(:';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      SDG.debug.start();
+      check('syntax error stops run', SDG.debug.state() === 'idle', SDG.debug.state());
+      var errStripe = document.querySelector('.line-stripe.err');
+      check('error stripe shown', errStripe && errStripe.style.display === 'block' && /line 1/.test(errStripe.title || 'line 1'),
+        errStripe ? errStripe.title + '/' + errStripe.style.display : 'none');
+
+      // --- 8. runtime error highlights its line (async: needs one frame to pump) ---
+      ta.value = 'pump_water(0)';
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+      SDG.debug.start();
+      setTimeout(function () {
+        check('runtime error finishes', SDG.debug.state() === 'finished', SDG.debug.state());
+        check('runtime error report', !!SDG.debug.report());
+        check('runtime error stripe', errStripe && errStripe.style.display === 'block', errStripe && errStripe.title);
+
+        // --- 9. typing clears the error stripe ---
+        ta.value = 'pump_water(0)\n';
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        check('typing clears error stripe', errStripe.style.display === 'none', errStripe.style.display);
+
+        // --- 10. no soft wrap: caret/text must not desync on long lines ---
+        check('textarea wrap=off', ta.wrap === 'off', ta.wrap);
+        var hlEl = document.getElementById('highlight');
+        var c1 = getComputedStyle(ta), c2 = getComputedStyle(hlEl);
+        check('overlay matches textarea metrics',
+          c1.fontFamily === c2.fontFamily && c1.fontSize === c2.fontSize &&
+          c1.lineHeight === c2.lineHeight && c1.padding === c2.padding &&
+          c1.left === c2.left && c1.top === c2.top,
+          [c1.fontFamily, c1.left, c1.lineHeight].join('/'));
+        // a long line must scroll horizontally, never wrap vertically (a wrap
+        // would push every following line out of sync with the overlay)
+        var longVal = new Array(5001).join('x') + '\nshort';
+        ta.value = longVal;
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        var grewVertically = ta.scrollHeight > ta.clientHeight + 40;
+        check('long line scrolls horizontally, no vertical wrap',
+          !grewVertically && ta.scrollWidth > ta.clientWidth,
+          'h=' + ta.scrollHeight + '/' + ta.clientHeight + ' w=' + ta.scrollWidth + '/' + ta.clientWidth);
+        ta.value = 'foo\nbar';
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+
+        // --- 11. Tab must not eat a selection; Shift+Tab must keep the caret ---
+        ['reportModal', 'finalModal', 'helpModal'].forEach(function (id) {
+          document.getElementById(id).classList.add('hidden');
+        });
+        ta.focus();
+        ta.value = 'foo\nbar';
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        ta.setSelectionRange(0, 3); // select "foo"
+        key(ta, { key: 'Tab' });
+        check('Tab indents line, keeps selection',
+          ta.value === '    foo\nbar' && ta.selectionStart === 4 && ta.selectionEnd === 7,
+          JSON.stringify(ta.value.slice(0, 20)) + ' sel=' + ta.selectionStart + '-' + ta.selectionEnd);
+        ta.setSelectionRange(6, 6); // line 1 "    foo", caret col 6
+        key(ta, { key: 'Tab', shiftKey: true });
+        check('Shift+Tab keeps caret column',
+          ta.value === 'foo\nbar' && ta.selectionStart === 2 && ta.selectionEnd === 2,
+          JSON.stringify(ta.value) + ' sel=' + ta.selectionStart);
+        ta.setSelectionRange(2, 2); // "foo", no indent to remove
+        key(ta, { key: 'Tab', shiftKey: true });
+        check('Shift+Tab no-op leaves caret untouched',
+          ta.value === 'foo\nbar' && ta.selectionStart === 2, ta.selectionStart);
+
+        // --- 12. mouse pointer over the writing area is the text caret ---
+        var rc = ta.getBoundingClientRect();
+        var px = Math.min(rc.left + 60, window.innerWidth - 10);
+        var py = Math.min(Math.max(rc.top + 40, rc.top + 5), window.innerHeight - 10);
+        var under = document.elementFromPoint(px, py);
+        check('top element at code point is textarea', under === ta,
+          under ? (under.id || under.tagName) : 'null');
+        check('mouse cursor over code = text', under && getComputedStyle(under).cursor === 'text',
+          under ? getComputedStyle(under).cursor : 'null');
+
+        check('no page errors', errors.length === 0, errors.join('; '));
+
+        document.title = 'PACE:' + (bad ? 'FAILED:' : 'ok:') + out.join(' | ');
+      }, 100);
+    }, 1000);
+  }, 1000);
+});
+</script>
+</body>
+</html>
