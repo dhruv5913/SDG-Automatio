@@ -74,6 +74,7 @@
     }
     if (this.accept('KEYWORD', 'break')) { this.endSimple(); return { type: 'Break', line: line }; }
     if (this.accept('KEYWORD', 'continue')) { this.endSimple(); return { type: 'Continue', line: line }; }
+    if (this.accept('KEYWORD', 'pass')) { this.endSimple(); return { type: 'Pass', line: line }; }
 
     var expr = this.expression();
 

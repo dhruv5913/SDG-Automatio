@@ -293,6 +293,99 @@
     'run_factory()'
   ].join('\n');
 
+  var templateEasy = [
+    '# SDG Stage 2 — Manufacturing (Starter Code)',
+    '# Current Rating: Grade D (Score ~52/100, Needs work).',
+    '# Objective: Upgrade this factory automation to achieve Grade A (Score >= 85)!',
+    '#',
+    '# Flaws in this starter code:',
+    '#   - Relies on dirty grid power instead of solar panels, causing massive pollution (> 60).',
+    '#   - Never hires safety crew (hire(1)), causing workplace safety to collapse below 55.',
+    '#   - Only uses reactive recycling without building permanent recycling facilities.',
+    '',
+    'def run_factory():',
+    '    while True:',
+    '        # 1) Basic production pipeline',
+    '        if ore() < 20 and energy() > 5:',
+    '            mine(5)',
+    '        if ore() >= 20 and steel() < 20 and energy() > 8:',
+    '            smelt(5)',
+    '        if steel() >= 20 and goods() < 20 and energy() > 6:',
+    '            assemble(5)',
+    '        if goods() >= 5 and energy() > 3:',
+    '            ship(5)',
+    '',
+    '        # 2) Dirty grid power & reactive waste clearing',
+    '        if energy() < 20 and money() >= 6:',
+    '            grid_power()',
+    '        if waste() > 30 and money() >= 3 and energy() >= 5:',
+    '            recycle(10)',
+    '',
+    'run_factory()'
+  ].join('\n');
+
+  var templateHard = [
+    '# SDG Stage 2 — Manufacturing (Hard Mode)',
+    '# Objective: Output >= 50, Waste <= 35, Pollution <= 60, Safety >= 55, Energy >= 20.',
+    '# Design an industrial production pipeline with clean power and worker safety.',
+    '#',
+    '# SUGGESTED PROBES:',
+    '#   ore(), steel(), goods(), output(), waste(), pollution(), safety(),',
+    '#   energy(), money(), workers(), recyclers(), panels()',
+    '#',
+    '# SUGGESTED ACTIONS:',
+    '#   mine(5)            # +5 ore, costs 3 energy, generates waste & pollution, hurts safety',
+    '#   smelt(5)           # ore -> steel (1:1), costs 6 energy',
+    '#   assemble(5)        # steel -> goods (1:1), costs 4 energy',
+    '#   ship(5)            # goods -> output & +12.5k revenue, costs 2 energy',
+    '#   hire(1)            # Crew: +0.12 safety/tick passive (-6k now, -0.4k/tick wage)',
+    '#   build_recycler()   # Clears 5 waste now and -0.35 waste/tick forever (-18k)',
+    '#   recycle(10)        # Burst waste cleaning (-3 energy, -2k, +0.5 safety)',
+    '#   solar()            # Clean energy: +4 energy now, +0.7 energy and -0.04 pollution/tick (-18k)',
+    '#   grid_power()       # Dirty stopgap: +10 energy, -2k, +3 pollution (guard it!)',
+    '',
+    'def run_factory():',
+    '    while True:',
+    '        # Tip: Guard every action with probes to keep machines running reliably',
+    '        pass',
+    '',
+    'run_factory()'
+  ].join('\n');
+
+  var suggestions = {
+    strategy: [
+      'Hire 3-4 crew early: their passive safety bonus (+0.12/tick per worker) compounds over all 80 ticks.',
+      'Build a recycler early to passively remove -0.35 waste every tick, preventing landfill overflow.',
+      'Shipping goods is your primary source of revenue (+2.5k per unit) — keep the pipeline flowing.',
+      'Guard grid_power() with pollution() < 45 and invest in solar panels to offset pollution.'
+    ],
+    actions: [
+      { name: 'mine(5)', text: 'Mines raw ore (-3 energy, +1 waste, -0.8 safety, +0.6 pollution)' },
+      { name: 'smelt(5)', text: 'Converts ore into steel (-6 energy, +1.5 waste, +1.75 pollution, -0.5 safety)' },
+      { name: 'assemble(5)', text: 'Fabricates goods from steel (-4 energy, +1.25 waste, +0.5 pollution)' },
+      { name: 'ship(5)', text: 'Ships finished goods (+12.5k revenue, +5 output, -2 energy)' },
+      { name: 'hire(1)', text: 'Hire worker (+0.12 safety/tick passive, -6k now, -0.4k/tick wage)' },
+      { name: 'build_recycler()', text: 'Permanent recycler: -0.35 waste/tick passive (-18k)' },
+      { name: 'recycle(10)', text: 'Clear 10 waste immediately (-3 energy, -2k, +0.5 safety)' },
+      { name: 'solar()', text: 'Install solar panel (+4 energy, +0.7/tick, -0.04 pollution/tick, -18k)' },
+      { name: 'grid_power()', text: 'Fast grid electricity (+10 energy, -2k, +3 pollution -- guard it!)' }
+    ],
+    probes: [
+      { name: 'ore()', text: 'Stock of raw ore' },
+      { name: 'steel()', text: 'Stock of refined steel' },
+      { name: 'goods()', text: 'Stock of assembled goods ready to ship' },
+      { name: 'output()', text: 'Total units shipped (target >= 50)' },
+      { name: 'waste()', text: 'Industrial byproduct accumulated (keep <= 35)' },
+      { name: 'pollution()', text: 'Smog and particulate pollution (keep <= 60)' },
+      { name: 'safety()', text: 'Workplace safety index (keep >= 55)' },
+      { name: 'energy()', text: 'Factory electrical power reserve' },
+      { name: 'money()', text: 'Operating cash budget' },
+      { name: 'workers()', text: 'Current active workforce' },
+      { name: 'recyclers()', text: 'Count of active recycling facilities' },
+      { name: 'panels()', text: 'Count of installed solar arrays' }
+    ]
+  };
+
   SDG.Stage2 = {
     id: 'stage2',
     title: 'Stage 2 — Manufacturing',
@@ -322,6 +415,12 @@
     goals: goals,
     advice: advice,
     template: template,
+    templates: {
+      easy: templateEasy,
+      medium: template,
+      hard: templateHard
+    },
+    suggestions: suggestions,
     desc: [
       { name: 'mine(n=5)', text: '+n ore. −3 energy, +0.2n waste, −0.8 safety, +0.6 pollution.' },
       { name: 'smelt(n=5)', text: 'ore → steel 1:1. −6 energy, +0.3n waste, +0.35n pollution, −0.1n safety.' },

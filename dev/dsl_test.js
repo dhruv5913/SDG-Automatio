@@ -79,6 +79,7 @@ expect('augmented assign ops', 'x = 10\nx -= 3\nx *= 2\nx /= 4\nprint(x)', '3.5'
 expect('comments and blank lines', '# comment\n\nx = 2  # trailing\nprint(x)', '2');
 expect('line continuation in parens', 'print((1 +\n       2))', '3');
 expect('empty program', '', '');
+expect('pass statement', 'def noop():\n    pass\nnoop()\nif True:\n    pass\nprint("ok")', 'ok');
 
 expectError('undefined name', 'print(y)', "'y' is not defined");
 expectError('division by zero', 'print(1 / 0)', 'division by zero');

@@ -6,12 +6,14 @@
   function gradeOf(score, allPassed) {
     if (!allPassed) { // failing any goal caps the grade — you cleared it, but it is unstable
       if (score >= 60) return { letter: 'C', text: 'Cleared, but goals failed' };
-      return { letter: 'F', text: 'Needs work' };
+      if (score >= 40) return { letter: 'D', text: 'Needs work' };
+      return { letter: 'F', text: 'Failed' };
     }
     if (score >= 85) return { letter: 'A', text: 'Excellent' };
     if (score >= 70) return { letter: 'B', text: 'Good' };
     if (score >= 60) return { letter: 'C', text: 'Pass' };
-    return { letter: 'F', text: 'Needs work' };
+    if (score >= 40) return { letter: 'D', text: 'Needs work' };
+    return { letter: 'F', text: 'Failed' };
   }
 
   function build(stage, world, engine, runStatus, runError) {

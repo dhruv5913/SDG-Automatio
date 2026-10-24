@@ -310,6 +310,93 @@
     'maintain()'
   ].join('\n');
 
+  var templateEasy = [
+    '# SDG Stage 1 — Basic Needs (Starter Code)',
+    '# Current Rating: Grade D (Score ~44/100, Needs work).',
+    '# Objective: Upgrade this automation to achieve Grade A (Score >= 85)!',
+    '#',
+    '# Flaws in this starter code:',
+    '#   - Relies naively on burn_fuel(), spiking CO2e emissions past the safe limit (<= 45).',
+    '#   - Does not build or maintain shelters, leaving housing vulnerable to decay.',
+    '#   - Does not invest in clean renewable solar panels.',
+    '',
+    'def play():',
+    '    while True:',
+    '        # 1) Pumps and distributes water naively',
+    '        if water_reserve() < 30 and energy() > 5:',
+    '            pump_water(10)',
+    '        if hydration() < 60 and water_reserve() >= 25:',
+    '            distribute("water", 25)',
+    '',
+    '        # 2) Basic food farming',
+    '        if food_reserve() < 30 and money() >= 7 and free_land() > 0:',
+    '            plant("vegetable", 1)',
+    '        if nutrition() < 60 and food_reserve() >= 25:',
+    '            distribute("food", 25)',
+    '',
+    '        # 3) Naive power: burns dirty fuel constantly, spikes emissions!',
+    '        if energy() < 35 and money() >= 2:',
+    '            burn_fuel()',
+    '',
+    'play()'
+  ].join('\n');
+
+  var templateHard = [
+    '# SDG Stage 1 — Basic Needs (Hard Mode)',
+    '# Objective: Hydration >= 60, Nutrition >= 60, Shelter >= 60, Energy >= 40, Emissions <= 45.',
+    '# Build an autonomous loop from scratch! No hand-holding code provided.',
+    '#',
+    '# SUGGESTED PROBES:',
+    '#   water_reserve(), food_reserve(), hydration(), nutrition(), shelter(),',
+    '#   energy(), money(), emissions(), panels(), free_land()',
+    '#',
+    '# SUGGESTED ACTIONS:',
+    '#   pump_water(10)           # Refills water reserve (-4 energy, -1k, +0.5 emissions)',
+    '#   distribute("water", 25)  # Delivers water from reserve to population',
+    '#   plant("vegetable", 1)    # Plants crop for passive food generation',
+    '#   distribute("food", 25)   # Delivers food from reserve to population',
+    '#   build_shelter(1)         # Adds +10 shelter (+0.15/tick passive, -12k, -5 energy)',
+    '#   solar_panel()            # Clean energy (+4 now, +0.5/tick, -0.06 CO2e/tick, -15k)',
+    '#   burn_fuel()              # Stopgap power (+12 energy, -2k, +4 CO2e -- warning: dirty!)',
+    '',
+    'def maintain():',
+    '    while True:',
+    '        # Tip: Guard every action with probes before calling to avoid stopping on errors',
+    '        pass',
+    '',
+    'maintain()'
+  ].join('\n');
+
+  var suggestions = {
+    strategy: [
+      'Guard every action with probe checks (e.g. check energy() and money() before acting).',
+      'Invest in solar_panel() early: each panel produces +0.5 energy and scrubs -0.06 CO2e every tick.',
+      'Only call distribute() when the corresponding water or food reserve is sufficiently stocked.',
+      'Guard burn_fuel() with emissions() < 40 to avoid failing the emissions ceiling (<= 45).'
+    ],
+    actions: [
+      { name: 'pump_water(10)', text: 'Pumps water into reserve (-4 energy, -1k, +0.5 CO2e)' },
+      { name: 'distribute("water", 25)', text: 'Distribute water to people (+hydration, consumes water reserve)' },
+      { name: 'plant("vegetable", 1)', text: 'Farms vegetables for continuous food supply (-7k, -2 energy)' },
+      { name: 'distribute("food", 25)', text: 'Distribute food to people (+nutrition, consumes food reserve)' },
+      { name: 'build_shelter(1)', text: 'Adds housing (+10 shelter now, +0.15/tick passive, -12k, -5 energy)' },
+      { name: 'solar_panel()', text: 'Clean renewable power (+4 energy, +0.5/tick, -0.06 CO2e/tick, -15k)' },
+      { name: 'burn_fuel()', text: 'Fast emergency power (+12 energy, -2k, +4 CO2e -- dirty!)' }
+    ],
+    probes: [
+      { name: 'water_reserve()', text: 'Water stored in reserve (0..100)' },
+      { name: 'food_reserve()', text: 'Food stored in reserve (0..100)' },
+      { name: 'hydration()', text: 'Population hydration percentage (0..100)' },
+      { name: 'nutrition()', text: 'Population nutrition percentage (0..100)' },
+      { name: 'shelter()', text: 'Housing adequacy level (0..100)' },
+      { name: 'energy()', text: 'Community electrical grid reserve (0..100)' },
+      { name: 'money()', text: 'Available community funds' },
+      { name: 'emissions()', text: 'Cumulative CO2e emissions (must stay <= 45)' },
+      { name: 'panels()', text: 'Count of installed solar panels' },
+      { name: 'free_land()', text: 'Free dirt plots available for construction' }
+    ]
+  };
+
   SDG.Stage1 = {
     id: 'stage1',
     title: 'Stage 1 — Basic Needs',
@@ -342,6 +429,12 @@
     goals: goals,
     advice: advice,
     template: template,
+    templates: {
+      easy: templateEasy,
+      medium: template,
+      hard: templateHard
+    },
+    suggestions: suggestions,
     desc: [
       { name: 'pump_water(units=10)', text: 'Fill the water store. −4 energy, −1k, +0.5 CO2e.' },
       { name: 'plant(crop="wheat", plots=1)', text: 'Build farms (wheat/vegetable/fruit). Costs land, budget, energy.' },

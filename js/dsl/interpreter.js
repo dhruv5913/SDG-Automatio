@@ -142,6 +142,8 @@
         throw new BreakSig();
       case 'Continue':
         throw new ContinueSig();
+      case 'Pass':
+        return;
       case 'If': {
         var t = yield* evalExpr(node.test, ctx);
         if (truthy(t)) yield* execBlock(node.body, ctx);

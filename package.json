@@ -1,0 +1,32 @@
+{
+  "name": "sdg-automation",
+  "version": "1.0.0",
+  "description": "SDG Automation - a browser-based sustainability programming game",
+  "main": "index.js",
+  "scripts": {
+    "build:web": "node scripts/build-web.js",
+    "cap:sync": "npm run build:web && cap sync",
+    "android:apk": "npm run cap:sync && cd android && gradlew.bat assembleDebug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhruv5913/SDG-Automatio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dhruv5913/SDG-Automatio/issues"
+  },
+  "homepage": "https://github.com/dhruv5913/SDG-Automatio#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "peerjs": "^1.5.5",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3"
+  }
+}

@@ -4,7 +4,7 @@
 
   var KEYWORDS = new Set([
     'def', 'return', 'if', 'elif', 'else', 'while', 'for', 'in',
-    'and', 'or', 'not', 'True', 'False', 'None', 'break', 'continue'
+    'and', 'or', 'not', 'True', 'False', 'None', 'break', 'continue', 'pass'
   ]);
 
   // longest-first so two-char operators win

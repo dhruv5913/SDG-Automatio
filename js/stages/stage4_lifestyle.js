@@ -271,6 +271,99 @@
     'live_well()'
   ].join('\n');
 
+  var templateEasy = [
+    '# SDG Stage 4 — Healthy Lifestyle (Starter Code)',
+    '# Current Rating: Grade D (Score ~47/100, Needs work).',
+    '# Objective: Upgrade this life schedule to achieve Grade A (Score >= 85)!',
+    '#',
+    '# Flaws in this starter code:',
+    '#   - Relies on cheap screen time for quick stress relief, causing mental fatigue & screen overload.',
+    '#   - Never exercises (no exercise() or walk()), leading to poor physical fitness (< 55).',
+    '#   - Relies purely on fast food cooking instead of balanced or healthy meals.',
+    '',
+    'def play():',
+    '    while True:',
+    '        # 1) Sleep when exhausted',
+    '        if sleep() < 60:',
+    '            sleep_for(6)',
+    '',
+    '        # 2) Quick fast food',
+    '        if nutrition() < 60 and money() >= 3:',
+    '            cook("fast")',
+    '',
+    '        # 3) Work for basic income',
+    '        if money() < 50:',
+    '            work(2)',
+    '',
+    '        # 4) Cheap screen time instead of exercise, causing mental health to suffer!',
+    '        if stress() > 40:',
+    '            screen_time(2)',
+    '',
+    'play()'
+  ].join('\n');
+
+  var templateHard = [
+    '# SDG Stage 4 — Healthy Lifestyle (Hard Mode)',
+    '# Objective: Sleep >= 60, Nutrition >= 60, Fitness >= 55, Stress <= 40, Focus >= 45, Screen <= 45.',
+    '# Automate 3 days of life balance from scratch!',
+    '#',
+    '# SUGGESTED PROBES:',
+    '#   sleep(), nutrition(), fitness(), stress(), focus(), screen(),',
+    '#   discipline(), money(), gyms(), parks(), kitchens()',
+    '#',
+    '# SUGGESTED ACTIONS:',
+    '#   sleep_for(8)       # Restores +30 sleep, -6 stress, +10 discipline, +4 focus',
+    '#   cook("balanced")   # +12 nutrition, -2 discipline, -4k budget',
+    '#   cook("fast")       # +5 nutrition, +1 stress, -1k budget',
+    '#   exercise(30)       # +4 fitness (7 with gym), -4 stress, +1 sleep, -2 nutrition, -3 discipline',
+    '#   meditate(10)       # -8 stress, +3 focus, -2 discipline (best stress reducer!)',
+    '#   work(2)            # +5k earnings, -2 focus, +3 stress, -1 sleep',
+    '#   screen_time(1)     # -3 stress, +7 screen time, -2 focus, -1 sleep (use sparingly!)',
+    '#   buy_gym()          # Workout boost +7 fitness & +0.15 fitness/tick (-20k)',
+    '#   buy_park()         # Passively lowers stress by -0.1/tick (-25k)',
+    '#   buy_kitchen()      # Passively adds +0.1 nutrition/tick (-18k)',
+    '',
+    'def live_well():',
+    '    while True:',
+    '        # Tip: Guard workouts with discipline() > 5 to prevent motivation collapse',
+    '        pass',
+    '',
+    'live_well()'
+  ].join('\n');
+
+  var suggestions = {
+    strategy: [
+      'Discipline is your operating energy: sleep_for(8) restores +10 discipline; exercise and meditate spend it.',
+      'Never let discipline hit 0 or motivation collapses and your script crashes!',
+      'Meditate instead of screen_time to control stress: screen_time hurts focus and drives screen time over 45.',
+      'Work a few shifts early to afford a gym (-20k) and park (-25k) for passive benefits across all 3 days.'
+    ],
+    actions: [
+      { name: 'sleep_for(8)', text: 'Sleep 8 hours: +30 sleep, -6 stress, +10 discipline, +4 focus' },
+      { name: 'cook("balanced")', text: 'Cook wholesome meal: +12 nutrition, -2 discipline (-4k)' },
+      { name: 'exercise(30)', text: 'Physical training: +4 fitness (7 with gym), -4 stress, -3 discipline' },
+      { name: 'meditate(10)', text: 'Mindfulness session: -8 stress, +3 focus, -2 discipline' },
+      { name: 'work(2)', text: 'Job shift: +5k budget income, -2 focus, +3 stress, -1 sleep' },
+      { name: 'screen_time(1)', text: 'Casual screen entertainment: -3 stress, +7 screen, -2 focus (danger!)' },
+      { name: 'buy_gym()', text: 'Home gym: +7 fitness per workout and +0.15 fitness/tick passive (-20k)' },
+      { name: 'buy_park()', text: 'Community park: -0.1 stress/tick passive forever (-25k)' },
+      { name: 'buy_kitchen()', text: 'Kitchen upgrade: +0.1 nutrition/tick passive forever (-18k)' }
+    ],
+    probes: [
+      { name: 'sleep()', text: 'Rest and sleep percentage (target >= 60)' },
+      { name: 'nutrition()', text: 'Nutritional wellness (target >= 60)' },
+      { name: 'fitness()', text: 'Physical conditioning index (target >= 55)' },
+      { name: 'stress()', text: 'Mental fatigue and anxiety (keep <= 40)' },
+      { name: 'focus()', text: 'Attention and productivity capacity (target >= 45)' },
+      { name: 'screen()', text: 'Cumulative digital screen time (keep <= 45)' },
+      { name: 'discipline()', text: 'Willpower reserve -- never let hit 0!' },
+      { name: 'money()', text: 'Available personal savings' },
+      { name: 'gyms()', text: 'Count of installed gym equipment' },
+      { name: 'parks()', text: 'Count of nearby community parks' },
+      { name: 'kitchens()', text: 'Count of upgraded cooking stations' }
+    ]
+  };
+
   SDG.Stage4 = {
     id: 'stage4',
     title: 'Stage 4 — Healthy Lifestyle',
@@ -301,6 +394,12 @@
     goals: goals,
     advice: advice,
     template: template,
+    templates: {
+      easy: templateEasy,
+      medium: template,
+      hard: templateHard
+    },
+    suggestions: suggestions,
     desc: [
       { name: 'sleep_for(hours=8)', text: '+30 sleep, −6 stress, +10 discipline, +4 focus.' },
       { name: 'cook(meal="balanced")', text: '"balanced": −4k, +12 nutrition, −2 discipline. "fast": −1k, +5 nutrition, +1 stress.' },

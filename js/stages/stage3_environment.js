@@ -244,6 +244,87 @@
     'steward()'
   ].join('\n');
 
+  var templateEasy = [
+    '# SDG Stage 3 — Environment (Starter Code)',
+    '# Current Rating: Grade D (Score ~56/100, Needs work).',
+    '# Objective: Upgrade this ecosystem stewardship to achieve Grade A (Score >= 85)!',
+    '#',
+    '# Flaws in this starter code:',
+    '#   - Prioritizes economic gain without air filters or wetlands, letting pollution degrade nature.',
+    '#   - Cleans the river only after severe damage rather than building protective wetlands.',
+    '#   - Plants only a minimal single tree patch, failing biodiversity and soil health goals.',
+    '',
+    'def steward():',
+    '    while True:',
+    '        # 1) Cleans river only when severely polluted',
+    '        if water_quality() < 45 and money() >= 8:',
+    '            clean_river()',
+    '',
+    '        # 2) Plants a minimal tree patch',
+    '        if trees() < 2 and money() >= 8 and free_land() > 0:',
+    '            plant_trees(1)',
+    '',
+    'steward()'
+  ].join('\n');
+
+  var templateHard = [
+    '# SDG Stage 3 — Environment (Hard Mode)',
+    '# Objective: Biodiversity >= 60, Air >= 65, Water >= 65, Carbon <= 55, Soil >= 55, Economy >= 60.',
+    '# Reclaim ecological health without bankrupting the economy. Code from scratch!',
+    '#',
+    '# SUGGESTED PROBES:',
+    '#   biodiversity(), air(), water_quality(), carbon(), soil(), economy(),',
+    '#   money(), trees(), wetlands(), filters(), factories(), restricted(), free_land()',
+    '#',
+    '# SUGGESTED ACTIONS:',
+    '#   restrict_polluter()   # Closes 1 factory: cuts its damage, but costs 0.6k/tick',
+    '#   reopen_factory()      # Reopens restricted factory (+1.5k/tick economy, pollution returns)',
+    '#   plant_trees(3)        # +1.5 bio now, then +0.1 bio, +0.06 air, -0.05 carbon, +0.03 soil/tick (-12k)',
+    '#   clean_river()         # Immediate +14 water quality (+0.03/tick passive river baseline, -8k)',
+    '#   filter_air(1)         # +6 air now, then +0.15 air and -0.03 carbon/tick (-10k)',
+    '#   restore_wetland(1)    # +4 bio / +3 water now, then +0.1 bio, +0.12 water, -0.04 carbon/tick (-12k)',
+    '#   ban_plastic()         # Immediate -6 carbon and +4 air (-10k)',
+    '',
+    'def steward():',
+    '    while True:',
+    '        # Tip: Guard every action with money() to prevent running out of budget',
+    '        pass',
+    '',
+    'steward()'
+  ].join('\n');
+
+  var suggestions = {
+    strategy: [
+      'Factories fund the government (+1.5k/tick each). Restricting both will bankrupt you!',
+      'Restricting 1 factory cuts pollution in half while preserving steady revenue for green projects.',
+      'Trees compound over time: planting trees early boosts biodiversity, air, soil, and reduces carbon.',
+      'Wetlands are a powerhouse: they continuously clean water (+0.12/tick) and support wildlife (+0.1 bio/tick).'
+    ],
+    actions: [
+      { name: 'restrict_polluter()', text: 'Shuts down 1 dirty factory to cut pollution in half' },
+      { name: 'reopen_factory()', text: 'Reopens a closed factory (+1.5k/tick budget income)' },
+      { name: 'plant_trees(3)', text: 'Afforestation: +0.1 bio, +0.06 air, -0.05 carbon, +0.03 soil/tick (-12k)' },
+      { name: 'clean_river()', text: 'Direct river depollution: +14 water quality immediately (-8k)' },
+      { name: 'filter_air(1)', text: 'Industrial scrubber: +6 air now, +0.15 air/tick, -0.03 carbon/tick (-10k)' },
+      { name: 'restore_wetland(1)', text: 'Wetland preserve: +0.12 water/tick, +0.1 bio/tick, -0.04 carbon/tick (-12k)' },
+      { name: 'ban_plastic()', text: 'Plastic legislation: instant -6 carbon, +4 air quality (-10k)' }
+    ],
+    probes: [
+      { name: 'biodiversity()', text: 'Species health index (target >= 60)' },
+      { name: 'air()', text: 'Air cleanliness rating (target >= 65)' },
+      { name: 'water_quality()', text: 'River water purity index (target >= 65)' },
+      { name: 'carbon()', text: 'Atmospheric greenhouse carbon (keep <= 55)' },
+      { name: 'soil()', text: 'Soil organic health index (target >= 55)' },
+      { name: 'economy()', text: 'Regional treasury funds (target >= 60)' },
+      { name: 'trees()', text: 'Number of mature forest tiles' },
+      { name: 'wetlands()', text: 'Count of restored wetland sanctuaries' },
+      { name: 'filters()', text: 'Active air filtration stations' },
+      { name: 'factories()', text: 'Total factories in the region' },
+      { name: 'restricted()', text: 'Count of currently closed factories' },
+      { name: 'free_land()', text: 'Free barren tiles available for planting' }
+    ]
+  };
+
   SDG.Stage3 = {
     id: 'stage3',
     title: 'Stage 3 — Environment',
@@ -270,6 +351,12 @@
     goals: goals,
     advice: advice,
     template: template,
+    templates: {
+      easy: templateEasy,
+      medium: template,
+      hard: templateHard
+    },
+    suggestions: suggestions,
     desc: [
       { name: 'plant_trees(n=3)', text: '−4k each, +1.5 biodiversity now, then +0.1 bio, +0.06 air, −0.05 carbon, +0.03 soil per tick.' },
       { name: 'clean_river()', text: '−8k, +14 water quality immediately.' },
